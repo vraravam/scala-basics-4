@@ -2,7 +2,7 @@ import scala.collection.mutable
 
 //def square(a:Int) = a * a
 //def square = {a:Int => a * a}
-def square = {a:Int => a * a}
+def square = { a: Int => a * a }
 
 
 def input = 1 to 10
@@ -33,7 +33,7 @@ def map2(seq: Seq[Int], f: Int => Int): Seq[Int] = {
 val ys = map2(input, square)
 
 
-def map3(seq: Seq[Int], f: Int => Int) : Seq[Int] = {
+def map3(seq: Seq[Int], f: Int => Int): Seq[Int] = {
   if (seq.isEmpty)
     seq
   else
