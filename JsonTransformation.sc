@@ -43,7 +43,7 @@ val reqdOutput = Json.obj(
 )
 
 object X {
-  private object Urn {
+  object :: {
     def unapply(str: String): Option[(String, String)] = str.split(":") match {
       case Array(prefix, suffix) => Option((prefix, suffix))
       case _ => None
@@ -55,7 +55,7 @@ object X {
     case JsBoolean(x) => JsBoolean(!x)
     case JsNull => JsString("error")
     case JsString("") => JsString("empty")
-    case JsString(Urn("urn", suffix)) => JsString(s"Hello, $suffix")
+    case JsString("urn" :: suffix) => JsString(s"Hello, $suffix")
     case JsArray(values) => JsArray(values.map(transform))
     case JsObject(pairs) => JsObject(pairs.map(transformPair))
     case x => x
