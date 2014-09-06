@@ -42,23 +42,31 @@ val reqdOutput = Json.obj(
   "n" -> "urn:ignore"
 )
 
-def transform(json: JsValue): JsValue = json match {
-  case JsNumber(x) => JsNumber(x * x)
-  case JsBoolean(x) => JsBoolean(!x)
-  case JsNull => JsString("error")
-  case JsString("") => JsString("empty")
-  case JsString(str) if str.startsWith("urn:") => JsString(str.replaceFirst("urn:", "Hello, "))
-  case JsArray(values) => JsArray(values.map(transform))
-  case JsObject(pairs) => JsObject(pairs.map(transformPair))
-  case x => x
+object X {
+  private object Urn {
+    def unapply(str: String): Option[(String, String)] = str.split(":") match {
+      case Array(prefix, suffix) => Option((prefix, suffix))
+      case _ => None
+    }
+  }
+
+  def transform(json: JsValue): JsValue = json match {
+    case JsNumber(x) => JsNumber(x * x)
+    case JsBoolean(x) => JsBoolean(!x)
+    case JsNull => JsString("error")
+    case JsString("") => JsString("empty")
+    case JsString(Urn("urn", suffix)) => JsString(s"Hello, $suffix")
+    case JsArray(values) => JsArray(values.map(transform))
+    case JsObject(pairs) => JsObject(pairs.map(transformPair))
+    case x => x
+  }
+
+  def transformPair(pair: (String, JsValue)) = pair match {
+    case (k@("m" | "n"), v) => (k, v)
+    case (k, v) => (k, transform(v))
+  }
 }
 
-def transformPair(pair: (String, JsValue)) = pair match {
-  case (k@("m" | "n"), v) => (k, v)
-  case (k, v) => (k, transform(v))
-}
-
-val output = transform(input)
+val output = X.transform(input)
 Json.prettyPrint(output)
-
 output == reqdOutput
